@@ -16,12 +16,26 @@ import {
 import { type routesProps } from './types'
 import RouterGuard from './routerGuard';
 
+
 function NotFoundPage() {
   return <div>404 - Page Not Found</div>
 }
 
+// * 在vite中，使用rollup进行打包，如果使用import()动态导入的话，自动会分包，但是前提是路径必须是字符串，而且是指定好的，如果含有参数，则不会单独打包。
+// * 只能使用lazy首先把组件加载出来之后用来匹配，才可以。
+const viewMap: {
+  [key: string]: any
+} = {
+  '/': lazy(() => import("@/App")),
+  'demo': lazy(() => import('@views/Demo')),
+  'about': lazy(() => import('@views/About')),
+  'about/:id': lazy(() => import('@views/About')),
+  'contact': lazy(() => import('@views/Contact'))
+};
+
 function LazyNode({ elementPath }: { elementPath: string }) {
-  const Component = lazy(() => import(`${elementPath}.tsx`));
+  // const Component = lazy(() => import(`${elementPath}.tsx`));
+  const Component = viewMap[elementPath];
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Component />
@@ -29,32 +43,42 @@ function LazyNode({ elementPath }: { elementPath: string }) {
   )
 }
 
+// const App = lazy(() => import('@/App.tsx'));
+// const Demo = lazy(() => import('@views/Demo'));
+// const About = lazy(() => import('@views/About'));
+// const Contact = lazy(() => import('@views/Contact'));
+
 export const routes: routesProps[] = [
   {
     path: "/",
-    element: <LazyNode elementPath={"../App"} />,
+    element: <LazyNode elementPath={"/"} />,
+    // element: <App />,
     breadcrumbName: "Home",
     children: [
       {
         path: "demo",
-        element: <LazyNode elementPath={"../views/Demo/index"} />,
+        element: <LazyNode elementPath={"demo"} />,
+        // element: <Demo />,
         breadcrumbName: 'Demo',
         children: [
           {
             path: "about",
-            element: <LazyNode elementPath={"../views/About/index"} />,
+            element: <LazyNode elementPath={"about"} />,
+            // element: <About />,
             breadcrumbName: 'About',
-            children:[
+            children: [
               {
                 path: 'contact',
-                element: <LazyNode elementPath={"../views/Contact/index"} />,
+                element: <LazyNode elementPath={"contact"} />,
+                // element: <Contact />,
                 breadcrumbName: 'Contact',
               }
             ]
           },
           {
             path: "about/:id",
-            element: <LazyNode elementPath={"../views/About/index"} />,
+            element: <LazyNode elementPath={"about/:id"} />,
+            // element: <About />,
             breadcrumbName: 'About'
           },
         ]
@@ -104,18 +128,18 @@ function RouteView(routeConfig: routesProps) {
   return <Route key={routeConfig.path} path={routeConfig.path} element={routeConfig.element} />
 }
 
-const Router = () => {
+const Router = function () {
   return (
     <RouterGuard>
-      {/* <Suspense fallback={<div>Loading...</div>}> */}
-      <Routes>
-        {
-          routes.map(route => {
-            return <React.Fragment key={route.path}>{RouteView(route)}</React.Fragment>
-          })
-        }
-      </Routes>
-      {/* </Suspense> */}
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          {
+            routes.map(route => {
+              return <React.Fragment key={route.path}>{RouteView(route)}</React.Fragment>
+            })
+          }
+        </Routes>
+      </Suspense>
     </RouterGuard>
   )
 }

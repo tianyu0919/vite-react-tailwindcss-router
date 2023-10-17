@@ -8,13 +8,13 @@
  * @Date: 2023-10-16 17:47:33
  * @Description: 
  */
-import React, { } from 'react'
+// import React from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import Breadcrumb from '@components/Breadcrumb'
 import { Button } from "@arco-design/web-react";
 
 
-function App(props) {
+function App() {
 
   const navigate = useNavigate();
 

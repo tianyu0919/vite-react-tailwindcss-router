@@ -3,11 +3,15 @@
  * @Date: 2023-10-17 01:13:18
  * @Description: 
  */
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import NProgess from 'nprogress';
 
-const RouterGuard = function (props) {
+interface Props {
+  children: React.ReactElement | null
+}
+
+const RouterGuard = function (props: Props) {
   NProgess.start();
   const location = useLocation();
 
@@ -20,7 +24,7 @@ const RouterGuard = function (props) {
     }
   }, [location])
 
-  return props.children
+  return props.children || null
 }
 
 export default RouterGuard;
