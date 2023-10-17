@@ -7,7 +7,7 @@ import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import NProgess from 'nprogress';
 
-const RouterGuard: React.FC<{ children: any }> = function (props) {
+const RouterGuard = function (props) {
   NProgess.start();
   const location = useLocation();
 

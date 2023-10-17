@@ -3,6 +3,11 @@
  * @Date: 2023-10-16 17:49:13
  * @Description: 
  */
+/*
+ * @Author: 卢天宇
+ * @Date: 2023-10-16 17:49:13
+ * @Description: 
+ */
 import React, { Suspense, lazy } from 'react';
 import {
   Routes,
@@ -34,6 +39,25 @@ export const routes: routesProps[] = [
         path: "demo",
         element: <LazyNode elementPath={"../views/Demo/index"} />,
         breadcrumbName: 'Demo',
+        children: [
+          {
+            path: "about",
+            element: <LazyNode elementPath={"../views/About/index"} />,
+            breadcrumbName: 'About',
+            children:[
+              {
+                path: 'contact',
+                element: <LazyNode elementPath={"../views/Contact/index"} />,
+                breadcrumbName: 'Contact',
+              }
+            ]
+          },
+          {
+            path: "about/:id",
+            element: <LazyNode elementPath={"../views/About/index"} />,
+            breadcrumbName: 'About'
+          },
+        ]
       },
     ],
   },
@@ -54,7 +78,12 @@ export function flattenRoutes(routes: routesProps[], parentPath: string = ""): r
   let result: routesProps[] = [];
 
   routes.forEach(route => {
-    const currentPath = `${parentPath}${route.path}`;
+    let currentPath = "";
+    if (route.path === '*') {
+      currentPath = route.path;
+    } else {
+      currentPath = `${parentPath.endsWith('/') ? parentPath : parentPath + '/'}${route.path === "/" ? '' : route.path}`;
+    }
     result.push({ ...route, path: currentPath, });
     if (route.children) {
       result = result.concat(flattenRoutes(route.children, currentPath))

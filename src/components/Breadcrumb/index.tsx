@@ -5,7 +5,7 @@
  */
 import React, { useEffect, useState } from 'react'
 
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, matchPath } from 'react-router-dom'
 import { flattenRoutes, routes } from '@/routers';
 import { routesProps } from '@/routers/types'
 import classnames from 'classnames'
@@ -15,15 +15,21 @@ export default function Breadcrumb() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  function matchRuler(path: string) {
+    const match = new RegExp(`${path}`, 'g');
+    return match.test(location.pathname.toLocaleLowerCase());
+  }
+
   useEffect(() => {
     const flatRoutes = flattenRoutes(routes);
-    console.log(flatRoutes);
 
     // 根据当前路径获取匹配的路由配置
     const matchRoutes = flatRoutes.filter(route => {
       if (route.path === '*') return false;
-      const match = new RegExp(`${route.path.toLocaleLowerCase()}`, 'g');
-      return match.test(location.pathname.toLocaleLowerCase());
+      // const match = new RegExp(`${route.path.toLocaleLowerCase()}`, 'g');
+      // return match.test(location.pathname.toLocaleLowerCase());
+      // return matchRuler(route.path);
+      return matchRuler(route.path.toLocaleLowerCase());
     });
     setMatchedRoutes(matchRoutes);
 
@@ -36,7 +42,9 @@ export default function Breadcrumb() {
           <React.Fragment key={route.path || 'not'}>
             {idx !== 0 ? <span>/</span > : ''}
             <span
-              onClick={() => { navigate(route.path || '') }}
+              onClick={() => {
+                !matchPath(location.pathname, route.path) && navigate(route.path || '')
+              }}
               className={classnames({
                 "cursor-pointer": idx !== arr.length - 1,
                 "hover:bg-slate-200": idx !== arr.length - 1,
